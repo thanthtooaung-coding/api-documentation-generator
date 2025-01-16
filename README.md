@@ -45,7 +45,7 @@ The **API Documentation Generator** streamlines the process of creating consiste
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/api-documentation-generator.git
+   git clone https://github.com/thanthtooaung-coding/api-documentation-generator.git
    cd api-documentation-generator
    ```
 
