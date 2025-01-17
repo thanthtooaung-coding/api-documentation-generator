@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .endpoint-container:not(:first-child),
+        .parameter-container:not(:first-child) {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">API Documentation Generator</h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">Create beautiful and comprehensive API documentation in minutes</p>
+    </div>
+
+    <form th:object="${apiDocumentationGeneratorDto}" method="post" th:action="@{/api-documentation-generator/create}" class="space-y-6">
+        <!-- General Information Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md">
+            <div class="p-6">
+                <div class="flex items-center mb-6">
+                    <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-900">General Information</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label for="apiName" class="block text-sm font-medium text-gray-700 mb-1">API Name</label>
+                        <input type="text" id="apiName" th:field="*{apiName}" required
+                               class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                               placeholder="Enter API name">
+                    </div>
+
+                    <div>
+                        <label for="apiVersion" class="block text-sm font-medium text-gray-700 mb-1">Version</label>
+                        <input type="text" id="apiVersion" th:field="*{apiVersion}" required
+                               class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                               placeholder="e.g., 1.0.0">
+                    </div>
+
+                    <div>
+                        <label for="apiDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="apiDescription" th:field="*{apiDescription}" rows="4" required
+                                  class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                                  placeholder="Describe your API..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endpoints Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-gray-900">Endpoints</h2>
+                    </div>
+                    <button type="button" onclick="addEndpoint()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-purple-600 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150">
+                        Add Endpoint
+                    </button>
+                </div>
+
+                <div id="endpointsContainer" class="space-y-6">
+                    <!-- Endpoint template will be cloned here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Parameters Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-gray-900">Parameters</h2>
+                    </div>
+                    <button type="button" onclick="addParameter()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
+                        Add Parameter
+                    </button>
+                </div>
+
+                <div id="parametersContainer" class="space-y-6">
+                    <!-- Parameter template will be cloned here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end mt-8">
+            <input type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 transform hover:scale-105"
+                value="Generate Documentation" />
+        </div>
+    </form>
+</div>
+
+<!-- Templates -->
+<template id="endpointTemplate">
+    <div class="endpoint-container border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors duration-150">
+        <div class="flex justify-end mb-2">
+            <button type="button" onclick="removeEndpoint(this)" class="text-red-500 hover:text-red-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Method</label>
+                <select name="endPoints[].method" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-150">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Path</label>
+                <input type="text" name="endPoints[].url" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-150"
+                       placeholder="/api/v1/resource">
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea name="endPoints[].description" rows="3" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-150"
+                      placeholder="Describe this endpoint..."></textarea>
+        </div>
+    </div>
+</template>
+
+<template id="parameterTemplate">
+    <div class="parameter-container border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors duration-150">
+        <div class="flex justify-end mb-2">
+            <button type="button" onclick="removeParameter(this)" class="text-red-500 hover:text-red-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input type="text" name="parameters[].name" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150"
+                       placeholder="Parameter name">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select name="parameters[].type" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150">
+                    <option value="String">String</option>
+                    <option value="Number">Number</option>
+                    <option value="Boolean">Boolean</option>
+                    <option value="Array">Array</option>
+                    <option value="Object">Object</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Required</label>
+                <select name="parameters[].required" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea name="parameters[].description" rows="2" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150"
+                      placeholder="Describe this parameter..."></textarea>
+        </div>
+    </div>
+</template>
+
+<script>
+    let endpointCount = 0;
+    let parameterCount = 0;
+
+    function addEndpoint() {
+        const template = document.getElementById('endpointTemplate');
+        const container = document.getElementById('endpointsContainer');
+        const clone = template.content.cloneNode(true);
+
+        const elements = clone.querySelectorAll('[name]');
+        elements.forEach(element => {
+            element.name = element.name.replace('[]', `[${endpointCount}]`);
+        });
+
+        container.appendChild(clone);
+        endpointCount++;
+        updateFormState();
+    }
+
+    function addParameter() {
+        const template = document.getElementById('parameterTemplate');
+        const container = document.getElementById('parametersContainer');
+        const clone = template.content.cloneNode(true);
+
+        const elements = clone.querySelectorAll('[name]');
+        elements.forEach(element => {
+            element.name = element.name.replace('[]', `[${parameterCount}]`);
+        });
+
+        container.appendChild(clone);
+        parameterCount++;
+        updateFormState();
+    }
+
+    function removeEndpoint(button) {
+        const container = button.closest('.endpoint-container');
+        container.remove();
+        updateFormState();
+    }
+
+    function removeParameter(button) {
+        const container = button.closest('.parameter-container');
+        container.remove();
+        updateFormState();
+    }
+
+    function updateFormState() {
+        const endpoints = document.querySelectorAll('.endpoint-container');
+        endpoints.forEach((endpoint, index) => {
+            const elements = endpoint.querySelectorAll('[name]');
+            elements.forEach(element => {
+                element.name = element.name.replace(/endPoints\[\d+\]/, `endPoints[${index}]`);
+            });
+        });
+
+        const parameters = document.querySelectorAll('.parameter-container');
+        parameters.forEach((parameter, index) => {
+            const elements = parameter.querySelectorAll('[name]');
+            elements.forEach(element => {
+                element.name = element.name.replace(/parameters\[\d+\]/, `parameters[${index}]`);
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        addEndpoint();
+        addParameter();
+    });
+
+</script>
+</body>
+</html>

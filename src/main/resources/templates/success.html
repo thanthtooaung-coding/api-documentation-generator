@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation Generated Successfully</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">API Documentation Generated Successfully!</h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">Your API documentation has been created. What would you like to do next?</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md p-6">
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <a href="#" onclick="showPreview(); return false;" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 text-center">
+                Preview
+            </a>
+            <a href="/api-documentation-generator/create" class="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 text-center">
+                Go Back and Edit
+            </a>
+            <a href="#" onclick="downloadApiRoutes(); return false;" class="w-full sm:w-auto px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-150 text-center">
+                Download API Routes
+            </a>
+        </div>
+    </div>
+
+    <div id="previewContainer" class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md p-6 hidden">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">API Preview</h2>
+        <pre id="apiPreview" class="bg-gray-100 p-4 rounded-lg overflow-x-auto"></pre>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const apiDocumentation = [[${apiDocumentation}]];
+
+    function showPreview() {
+        const previewContainer = document.getElementById('previewContainer');
+        const apiPreview = document.getElementById('apiPreview');
+        apiPreview.textContent = JSON.stringify(apiDocumentation, null, 2);
+        previewContainer.classList.remove('hidden');
+    }
+
+    function downloadApiRoutes() {
+        const blob = new Blob([JSON.stringify(apiDocumentation, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'api_routes.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+</body>
+</html>
