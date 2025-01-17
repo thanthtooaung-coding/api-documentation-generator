@@ -18,7 +18,7 @@ import java.util.Map;
 @RequestMapping("/api-documentation-generator")
 public class ApiDocumentationGeneratorController {
 
-    @GetMapping("/create")
+    @GetMapping({"/", "", "/create"})
     public String createForm(Model model) {
         model.addAttribute("apiDocumentationGeneratorDto", new ApiDocumentationGeneratorDto());
         return "index";
