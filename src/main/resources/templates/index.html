@@ -85,34 +85,10 @@
             </div>
         </div>
 
-        <!-- Parameters Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center">
-                        <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-semibold text-gray-900">Parameters</h2>
-                    </div>
-                    <button type="button" onclick="addParameter()"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
-                        Add Parameter
-                    </button>
-                </div>
-
-                <div id="parametersContainer" class="space-y-6">
-                    <!-- Parameter template will be cloned here -->
-                </div>
-            </div>
-        </div>
-
         <!-- Submit Button -->
         <div class="flex justify-end mt-8">
             <input type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 transform hover:scale-105"
-                value="Generate Documentation" />
+                   value="Generate Documentation" />
         </div>
     </form>
 </div>
@@ -149,6 +125,18 @@
             <textarea name="endPoints[].description" rows="3" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-150"
                       placeholder="Describe this endpoint..."></textarea>
         </div>
+        <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold text-gray-900">Parameters</h3>
+                <button type="button" onclick="addParameter(this)"
+                        class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
+                    Add Parameter
+                </button>
+            </div>
+            <div class="parameters-container space-y-4">
+                <!-- Parameter template will be cloned here -->
+            </div>
+        </div>
     </div>
 </template>
 
@@ -164,12 +152,12 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" name="parameters[].name" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150"
+                <input type="text" name="endPoints[].parameters[].name" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150"
                        placeholder="Parameter name">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <select name="parameters[].type" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150">
+                <select name="endPoints[].parameters[].type" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150">
                     <option value="String">String</option>
                     <option value="Number">Number</option>
                     <option value="Boolean">Boolean</option>
@@ -179,7 +167,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Required</label>
-                <select name="parameters[].required" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150">
+                <select name="endPoints[].parameters[].required" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150">
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                 </select>
@@ -187,7 +175,7 @@
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea name="parameters[].description" rows="2" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150"
+            <textarea name="endPoints[].parameters[].description" rows="2" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150"
                       placeholder="Describe this parameter..."></textarea>
         </div>
     </div>
@@ -195,7 +183,6 @@
 
 <script>
     let endpointCount = 0;
-    let parameterCount = 0;
 
     function addEndpoint() {
         const template = document.getElementById('endpointTemplate');
@@ -212,18 +199,21 @@
         updateFormState();
     }
 
-    function addParameter() {
+    function addParameter(button) {
+        const endpointContainer = button.closest('.endpoint-container');
+        const parametersContainer = endpointContainer.querySelector('.parameters-container');
         const template = document.getElementById('parameterTemplate');
-        const container = document.getElementById('parametersContainer');
         const clone = template.content.cloneNode(true);
+
+        const endpointIndex = Array.from(endpointContainer.parentNode.children).indexOf(endpointContainer);
+        const parameterIndex = parametersContainer.children.length;
 
         const elements = clone.querySelectorAll('[name]');
         elements.forEach(element => {
-            element.name = element.name.replace('[]', `[${parameterCount}]`);
+            element.name = element.name.replace('[]', `[${endpointIndex}]`).replace('[]', `[${parameterIndex}]`);
         });
 
-        container.appendChild(clone);
-        parameterCount++;
+        parametersContainer.appendChild(clone);
         updateFormState();
     }
 
@@ -241,25 +231,24 @@
 
     function updateFormState() {
         const endpoints = document.querySelectorAll('.endpoint-container');
-        endpoints.forEach((endpoint, index) => {
-            const elements = endpoint.querySelectorAll('[name]');
-            elements.forEach(element => {
-                element.name = element.name.replace(/endPoints\[\d+\]/, `endPoints[${index}]`);
+        endpoints.forEach((endpoint, endpointIndex) => {
+            const endpointElements = endpoint.querySelectorAll('[name^="endPoints["]');
+            endpointElements.forEach(element => {
+                element.name = element.name.replace(/endPoints\[\d+\]/, `endPoints[${endpointIndex}]`);
             });
-        });
 
-        const parameters = document.querySelectorAll('.parameter-container');
-        parameters.forEach((parameter, index) => {
-            const elements = parameter.querySelectorAll('[name]');
-            elements.forEach(element => {
-                element.name = element.name.replace(/parameters\[\d+\]/, `parameters[${index}]`);
+            const parameters = endpoint.querySelectorAll('.parameter-container');
+            parameters.forEach((parameter, parameterIndex) => {
+                const parameterElements = parameter.querySelectorAll('[name^="endPoints["]');
+                parameterElements.forEach(element => {
+                    element.name = element.name.replace(/endPoints\[\d+\]\.parameters\[\d+\]/, `endPoints[${endpointIndex}].parameters[${parameterIndex}]`);
+                });
             });
         });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         addEndpoint();
-        addParameter();
     });
 
 </script>

@@ -38,7 +38,7 @@
 </div>
 
 <script th:inline="javascript">
-    const apiDocumentation = [[${apiDocumentation}]];
+    const apiDocumentation = /*[[${apiDocumentation}]]*/ {};
 
     function showPreview() {
         const previewContainer = document.getElementById('previewContainer');

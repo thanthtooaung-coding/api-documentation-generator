@@ -16,5 +16,4 @@ public class ApiDocumentationGeneratorDto {
     private String apiVersion;
     private String apiDescription;
     private List<EndPointDto> endPoints;
-    private List<ParameterDto> parameters;
 }
