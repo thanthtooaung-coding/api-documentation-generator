@@ -8,10 +8,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .method-badge {
+            font-family: 'SF Mono', 'Courier New', Courier, monospace;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-<div class="max-w-4xl mx-auto">
+<div class="max-w-5xl mx-auto">
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-900 mb-4">API Documentation Generated Successfully!</h1>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">Your API documentation has been created. What would you like to do next?</p>
@@ -31,20 +34,109 @@
         </div>
     </div>
 
-    <div id="previewContainer" class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md p-6 hidden">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">API Preview</h2>
-        <pre id="apiPreview" class="bg-gray-100 p-4 rounded-lg overflow-x-auto"></pre>
+    <div id="previewContainer" class="mt-8 hidden">
+        <div id="apiPreview" class="space-y-8"></div>
     </div>
 </div>
 
 <script th:inline="javascript">
     const apiDocumentation = /*[[${apiDocumentation}]]*/ {};
 
+    const methodColors = {
+        'GET': 'bg-blue-500 text-white',
+        'POST': 'bg-green-500 text-white',
+        'PUT': 'bg-yellow-500 text-white',
+        'DELETE': 'bg-red-500 text-white',
+        'PATCH': 'bg-purple-500 text-white'
+    };
+
     function showPreview() {
         const previewContainer = document.getElementById('previewContainer');
         const apiPreview = document.getElementById('apiPreview');
-        apiPreview.textContent = JSON.stringify(apiDocumentation, null, 2);
+        apiPreview.innerHTML = generateApiPreview(apiDocumentation);
         previewContainer.classList.remove('hidden');
+    }
+
+    function generateApiPreview(api) {
+        let html = `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-3xl font-bold text-gray-900">${api.apiName}</h2>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                            v${api.apiVersion}
+                        </span>
+                    </div>
+                    <p class="text-gray-600 text-lg">${api.apiDescription}</p>
+                </div>
+            </div>
+        `;
+
+        html += '<div class="space-y-6">';
+        api.endPoints.forEach((endpoint, index) => {
+            html += `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex items-center gap-4 mb-4">
+                            <span class="method-badge px-3 py-1 rounded-full text-sm font-semibold ${methodColors[endpoint.method]}">
+                                ${endpoint.method}
+                            </span>
+                            <code class="text-lg font-mono bg-gray-100 px-3 py-1 rounded">${endpoint.url}</code>
+                        </div>
+                        <p class="text-gray-600">${endpoint.description}</p>
+                    </div>
+
+                    ${generateParametersSection(endpoint.parameters)}
+                </div>
+            `;
+        });
+        html += '</div>';
+
+        return html;
+    }
+
+    function generateParametersSection(parameters) {
+        if (!parameters || parameters.length === 0) {
+            return `
+                <div class="p-6 bg-gray-50">
+                    <p class="text-gray-500 text-center italic">No parameters required</p>
+                </div>
+            `;
+        }
+
+        let html = `
+            <div class="p-6 bg-gray-50">
+                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Parameters</h3>
+                <div class="space-y-4">
+        `;
+
+        parameters.forEach(param => {
+            html += `
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="flex items-start justify-between">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-sm font-medium text-gray-900">${param.name}</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full ${param.required ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}">
+                                    ${param.required ? 'Required' : 'Optional'}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600">${param.description}</p>
+                        </div>
+                        <span class="px-2 py-1 bg-gray-100 rounded text-sm font-mono text-gray-600">
+                            ${param.type}
+                        </span>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        return html;
     }
 
     function downloadApiRoutes() {
