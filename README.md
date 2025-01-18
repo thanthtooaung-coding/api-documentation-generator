@@ -24,7 +24,6 @@ The **API Documentation Generator** streamlines the process of creating consiste
 ## Features
 - Automated generation of API documentation.
 - Customizable API descriptions and metadata.
-- Integrates with various tools for seamless documentation updates.
 
 ---
 
