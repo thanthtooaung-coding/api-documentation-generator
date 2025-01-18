@@ -39,21 +39,21 @@
                 <div class="space-y-6">
                     <div>
                         <label for="apiName" class="block text-sm font-medium text-gray-700 mb-1">API Name</label>
-                        <input type="text" id="apiName" th:field="*{apiName}" required
+                        <input type="text" id="apiName" name="apiName" required
                                class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
                                placeholder="Enter API name">
                     </div>
 
                     <div>
                         <label for="apiVersion" class="block text-sm font-medium text-gray-700 mb-1">Version</label>
-                        <input type="text" id="apiVersion" th:field="*{apiVersion}" required
+                        <input type="text" id="apiVersion" name="apiVersion" required
                                class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
                                placeholder="e.g., 1.0.0">
                     </div>
 
                     <div>
                         <label for="apiDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                        <textarea id="apiDescription" th:field="*{apiDescription}" rows="4" required
+                        <textarea id="apiDescription" name="apiDescription" rows="4" required
                                   class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
                                   placeholder="Describe your API..."></textarea>
                     </div>
@@ -157,7 +157,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <select name="endPoints[].parameters[].type" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150">
+                <select name="endPoints[].parameters[].type" required onchange="handleTypeChange(this)" class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150">
                     <option value="String">String</option>
                     <option value="Number">Number</option>
                     <option value="Boolean">Boolean</option>
@@ -177,6 +177,14 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea name="endPoints[].parameters[].description" rows="2" required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150"
                       placeholder="Describe this parameter..."></textarea>
+        </div>
+        <!-- Nested Fields Container -->
+        <div class="nested-fields hidden mt-4">
+            <h4 class="text-sm font-medium text-gray-900 mb-2">Object Fields</h4>
+            <div class="nested-fields-container space-y-4"></div>
+            <button type="button" onclick="addNestedField(this)" class="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Add Field
+            </button>
         </div>
     </div>
 </template>
@@ -245,6 +253,54 @@
                 });
             });
         });
+    }
+
+    function handleTypeChange(selectElement) {
+        const parameterContainer = selectElement.closest('.parameter-container');
+        const nestedFieldsContainer = parameterContainer.querySelector('.nested-fields');
+        if (selectElement.value === 'Object') {
+            nestedFieldsContainer.classList.remove('hidden');
+        } else {
+            nestedFieldsContainer.classList.add('hidden');
+            // Clear nested fields if the type is changed from Object to something else
+            nestedFieldsContainer.querySelector('.nested-fields-container').innerHTML = '';
+        }
+    }
+
+    function addNestedField(button) {
+        const nestedFieldsContainer = button.closest('.nested-fields').querySelector('.nested-fields-container');
+        const endpointIndex = Array.from(document.querySelectorAll('.endpoint-container')).indexOf(button.closest('.endpoint-container'));
+        const parameterIndex = Array.from(button.closest('.parameters-container').children).indexOf(button.closest('.parameter-container'));
+        const fieldIndex = nestedFieldsContainer.children.length;
+
+        const fieldTemplate = `
+            <div class="nested-field-container border border-gray-200 rounded-lg p-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Field Name</label>
+                        <input type="text" name="endPoints[${endpointIndex}].parameters[${parameterIndex}].nestedFields[${fieldIndex}].fieldName"
+                               required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Field Type</label>
+                        <select name="endPoints[${endpointIndex}].parameters[${parameterIndex}].nestedFields[${fieldIndex}].fieldType"
+                                required class="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500">
+                            <option value="String">String</option>
+                            <option value="Number">Number</option>
+                            <option value="Boolean">Boolean</option>
+                            <option value="Array">Array</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" onclick="removeNestedField(this)"
+                        class="text-red-500 hover:text-red-700 mt-2">Remove Field</button>
+            </div>
+            `;
+        nestedFieldsContainer.insertAdjacentHTML('beforeend', fieldTemplate);
+    }
+
+    function removeNestedField(button) {
+        button.closest('.nested-field-container').remove();
     }
 
     document.addEventListener('DOMContentLoaded', () => {

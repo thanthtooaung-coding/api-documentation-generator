@@ -129,6 +129,39 @@
                     </div>
                 </div>
             `;
+            if (param.type === 'Object' && param.nestedFields) {
+                html += `
+                    <div class="mt-4">
+                        <h4 class="text-sm font-semibold text-gray-900">Fields</h4>
+                        <table class="mt-2 w-full table-auto border-collapse">
+                            <thead>
+                                <tr class="text-left text-sm text-gray-700 bg-gray-100">
+                                    <th class="px-4 py-2 border">Field Name</th>
+                                    <th class="px-4 py-2 border">Field Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                param.nestedFields.forEach(field => {
+                    html += `
+                        <tr>
+                            <td class="px-4 py-2 border text-sm text-gray-900">${field.fieldName}</td>
+                            <td class="px-4 py-2 border text-sm text-gray-600">${field.fieldType}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            html += `
+                </div>
+            `;
         });
 
         html += `
@@ -140,11 +173,59 @@
     }
 
     function downloadApiRoutes() {
-        const blob = new Blob([JSON.stringify(apiDocumentation, null, 2)], { type: 'application/json' });
+        const styles = `
+            <style>
+                body {
+                    font-family: 'Inter', sans-serif;
+                    background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
+                    min-height: 100vh;
+                    padding: 3rem 1rem;
+                }
+                .method-badge {
+                    font-family: 'SF Mono', 'Courier New', Courier, monospace;
+                }
+                .container {
+                    max-width: 64rem;
+                    margin: 0 auto;
+                }
+                ${Object.entries(methodColors).map(([method, classes]) => `
+                    .method-${method.toLowerCase()} {
+                        ${classes.includes('bg-blue-500') ? 'background-color: #3b82f6;' : ''}
+                        ${classes.includes('bg-green-500') ? 'background-color: #22c55e;' : ''}
+                        ${classes.includes('bg-yellow-500') ? 'background-color: #eab308;' : ''}
+                        ${classes.includes('bg-red-500') ? 'background-color: #ef4444;' : ''}
+                        ${classes.includes('bg-purple-500') ? 'background-color: #a855f7;' : ''}
+                        color: white;
+                    }
+                `).join('\n')}
+            </style>
+        `;
+
+        const fontImport = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">';
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${apiDocumentation.apiName} - API Documentation</title>
+                ${fontImport}
+                ${styles}
+            </head>
+            <body>
+            <div class="container">
+                ${generateApiPreview(apiDocumentation)}
+            </div>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([htmlContent], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'api_routes.json';
+        a.download = `${apiDocumentation.apiName}.html`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
