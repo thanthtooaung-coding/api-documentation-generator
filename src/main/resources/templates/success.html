@@ -202,7 +202,7 @@
         `;
 
         const fontImport = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">';
-
+        const tailwindImport = '<link href="https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css" rel="stylesheet">';
         const htmlContent = `
             <!DOCTYPE html>
             <html lang="en">
@@ -211,6 +211,7 @@
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${apiDocumentation.apiName} - API Documentation</title>
                 ${fontImport}
+                ${tailwindImport}
                 ${styles}
             </head>
             <body>
